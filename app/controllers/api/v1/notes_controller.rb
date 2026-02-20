@@ -1,4 +1,4 @@
-class NotesController < ApplicationController
+class Api::V1::NotesController < ApplicationController
   before_action :set_note, only: %i[ show update destroy ]
 
   # GET /notes
@@ -18,7 +18,7 @@ class NotesController < ApplicationController
     @note = Note.new(note_params)
 
     if @note.save
-      render json: @note, status: :created, location: @note
+      render json: @note, status: :created, location: api_v1_note_url(@note)
     else
       render json: @note.errors, status: :unprocessable_content
     end
