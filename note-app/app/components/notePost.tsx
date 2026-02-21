@@ -1,28 +1,70 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Button, Card, Headline, Paragraph, Switch, Text } from 'react-native-paper';
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import {
+  Button,
+  Card,
+  Headline,
+  Switch,
+  Text,
+  TextInput,
+} from "react-native-paper";
+import { updateNote, Note } from "../api/noteAPI";
 
 interface NotePostProps {
+  id: number;
   note: string;
-  status: boolean;
+  status: boolean; 
+  onUpdated: (updated: Note) => void;
 }
 
-// Capitalized the function name to NotePost
 function NotePost(props: NotePostProps) {
+  const [editedNote, setEditedNote] = useState(props.note);
+  const [editedStatus, setEditedStatus] = useState(props.status); 
+  const [saving, setSaving] = useState(false);
+
+  const handleUpdate = async () => {
+    try {
+      setSaving(true);
+      const updated = await updateNote(props.id, {
+        note: editedNote,
+        status: editedStatus, 
+      });
+      props.onUpdated(updated);
+    } catch (e) {
+      console.log("Update failed", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Card style={styles.card}>
       <Card.Title title="Task" />
       <Card.Content>
-        <Headline style={styles.noteText}>{props.note}</Headline>
-        <View style={styles.statusRow}>
-          <Text>{props.status ? "Done" : "Unfinished"}</Text>
-          {/* Using a Switch to represent the boolean status */}
-          <Switch value={props.status} color="#6200ee" />
-        </View>
+        <Headline style={styles.noteText}>Edit Note</Headline>
+        <TextInput
+          mode="outlined"
+          value={editedNote}
+          onChangeText={setEditedNote}
+          placeholder="Type note..."
+        />
       </Card.Content>
-      <Card.Actions>
+
+      <Card.Actions style={styles.actionsRow}>
         <Button mode="outlined">Delete</Button>
-        <Button mode="contained">Update</Button>
+
+        <View style={styles.updateGroup}>
+          <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
+          <Switch value={editedStatus} onValueChange={setEditedStatus} color="#6200ee" />
+          <Button
+            mode="contained"
+            onPress={handleUpdate}
+            loading={saving}
+            disabled={saving}
+          >
+            Update
+          </Button>
+        </View>
       </Card.Actions>
     </Card>
   );
@@ -38,12 +80,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
   },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 10,
-  }
+  actionsRow: {
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  updateGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
 });
 
 export default NotePost;

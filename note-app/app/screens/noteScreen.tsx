@@ -1,36 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, SafeAreaView, View } from 'react-native';
-import { getNotes } from '../api/noteAPI';
-import NotePost from '../components/notePost';
+import React, { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, SafeAreaView, View } from "react-native";
+import { getNotes, Note } from "../api/noteAPI";
+import NotePost from "../components/notePost";
 
 export default function NoteScreen() {
-    const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState<Note[]>([]);
 
-    useEffect(() => {
-        // Fetching from your Rails API
-        getNotes().then((data) => setNotes(data));
-    }, []);
+  useEffect(() => {
+    getNotes().then((data) => setNotes(data));
+  }, []);
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-                {notes && notes.map((note: any) => (
-                    <View key={note.id}>
-                        {/* Matching your Rails schema: note and status */}
-                        <NotePost note={note.note} status={note.status} />
-                    </View>
-                ))}
-            </ScrollView>
-        </SafeAreaView>
-    );
+  const handleUpdated = (updated: Note) => {
+    setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {notes.map((note) => (
+          <View key={note.id}>
+            <NotePost
+              id={note.id}
+              note={note.note}
+              status={note.status}
+              onUpdated={handleUpdated}
+            />
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
-    }
+  container: { flex: 1 },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
 });
