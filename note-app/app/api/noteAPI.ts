@@ -36,3 +36,14 @@ export async function updateNote(id: number, payload: NotePayload): Promise<Note
   });
   return await response.json();
 }
+
+export async function deleteNote(id: number): Promise<void> {
+  const response = await fetch(`${API_URL}notes/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Delete failed: ${response.status}`);
+  }
+}

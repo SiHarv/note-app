@@ -14,6 +14,10 @@ export default function NoteScreen() {
     setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
   };
 
+  const handleDeleted = (id: number) => {
+    setNotes((prev) => prev.filter((n) => n.id !== id));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -24,6 +28,7 @@ export default function NoteScreen() {
               note={note.note}
               status={note.status}
               onUpdated={handleUpdated}
+              onDeleted={handleDeleted}
             />
           </View>
         ))}

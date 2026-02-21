@@ -1,26 +1,21 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import {
-  Button,
-  Card,
-  Headline,
-  Switch,
-  Text,
-  TextInput,
-} from "react-native-paper";
-import { updateNote, Note } from "../api/noteAPI";
+import { Button, Card, Headline, Switch, Text, TextInput } from "react-native-paper";
+import { updateNote, deleteNote, Note } from "../api/noteAPI";
 
 interface NotePostProps {
   id: number;
   note: string;
   status: boolean; 
   onUpdated: (updated: Note) => void;
+  onDeleted: (id: number) => void;
 }
 
 function NotePost(props: NotePostProps) {
   const [editedNote, setEditedNote] = useState(props.note);
-  const [editedStatus, setEditedStatus] = useState(props.status); 
+  const [editedStatus, setEditedStatus] = useState(props.status);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleUpdate = async () => {
     try {
@@ -34,6 +29,18 @@ function NotePost(props: NotePostProps) {
       console.log("Update failed", e);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+      await deleteNote(props.id);
+      props.onDeleted(props.id);
+    } catch (e) {
+      console.log("Delete failed", e);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -51,7 +58,14 @@ function NotePost(props: NotePostProps) {
       </Card.Content>
 
       <Card.Actions style={styles.actionsRow}>
-        <Button mode="outlined">Delete</Button>
+        <Button
+          mode="outlined"
+          onPress={handleDelete}
+          loading={deleting}
+          disabled={deleting}
+        >
+          Delete
+        </Button>
 
         <View style={styles.updateGroup}>
           <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
