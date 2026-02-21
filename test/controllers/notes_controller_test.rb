@@ -6,31 +6,31 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get notes_url, as: :json
+    get api_v1_notes_path, as: :json
     assert_response :success
   end
 
   test "should create note" do
-    assert_difference("Note.count") do
-      post notes_url, params: { note: { note: @note.note, status: @note.status } }, as: :json
+    assert_difference("Note.count", 1) do
+      post api_v1_notes_path, params: { note: { note: "New Note", status: "active" } }, as: :json
     end
 
     assert_response :created
   end
 
   test "should show note" do
-    get note_url(@note), as: :json
+    get api_v1_note_path(@note), as: :json
     assert_response :success
   end
 
   test "should update note" do
-    patch note_url(@note), params: { note: { note: @note.note, status: @note.status } }, as: :json
+    patch api_v1_note_path(@note), params: { note: { note: "Updated" } }, as: :json
     assert_response :success
   end
 
   test "should destroy note" do
     assert_difference("Note.count", -1) do
-      delete note_url(@note), as: :json
+      delete api_v1_note_path(@note), as: :json
     end
 
     assert_response :no_content
