@@ -55,6 +55,11 @@ function NotePost(props: NotePostProps) {
           onChangeText={setEditedNote}
           placeholder="Type note..."
         />
+
+        <View style={styles.statusRow}>
+          <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
+          <Switch value={editedStatus} onValueChange={setEditedStatus} color="#6200ee" />
+        </View>
       </Card.Content>
 
       <Card.Actions style={styles.actionsRow}>
@@ -67,18 +72,14 @@ function NotePost(props: NotePostProps) {
           Delete
         </Button>
 
-        <View style={styles.updateGroup}>
-          <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
-          <Switch value={editedStatus} onValueChange={setEditedStatus} color="#6200ee" />
-          <Button
-            mode="contained"
-            onPress={handleUpdate}
-            loading={saving}
-            disabled={saving}
-          >
-            Update
-          </Button>
-        </View>
+        <Button
+          mode="contained"
+          onPress={handleUpdate}
+          loading={saving}
+          disabled={saving}
+        >
+          Update
+        </Button>
       </Card.Actions>
     </Card>
   );
@@ -94,14 +95,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
   },
+  statusRow: {
+    marginTop: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
   actionsRow: {
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  updateGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
   },
 });
 
