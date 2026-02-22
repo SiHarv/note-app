@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Button, Card, Headline, Switch, Text, TextInput } from "react-native-paper";
+import { Button, Card, FAB, Headline, Switch, Text, TextInput } from "react-native-paper";
 import { updateNote, deleteNote, Note } from "../api/noteAPI";
+import { Modal, ModalBackdrop, ModalContent, ModalHeader, ModalBody, ModalFooter, } from "@/components/ui/modal";
 
 interface NotePostProps {
   id: number;
   note: string;
-  status: boolean; 
+  status: boolean;
   onUpdated: (updated: Note) => void;
   onDeleted: (id: number) => void;
 }
@@ -16,13 +17,18 @@ function NotePost(props: NotePostProps) {
   const [editedStatus, setEditedStatus] = useState(props.status);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+
+  const DeleteFabIcon = () => (
+    <FAB icon="delete" customSize={40} mode="flat" style={styles.modalFabIcon} />
+  );
 
   const handleUpdate = async () => {
     try {
       setSaving(true);
       const updated = await updateNote(props.id, {
         note: editedNote,
-        status: editedStatus, 
+        status: editedStatus,
       });
       props.onUpdated(updated);
     } catch (e) {
@@ -37,6 +43,7 @@ function NotePost(props: NotePostProps) {
       setDeleting(true);
       await deleteNote(props.id);
       props.onDeleted(props.id);
+      setDeleteConfirmVisible(false);
     } catch (e) {
       console.log("Delete failed", e);
     } finally {
@@ -45,43 +52,91 @@ function NotePost(props: NotePostProps) {
   };
 
   return (
-    <Card style={styles.card}>
-      <Card.Title title="Task" />
-      <Card.Content>
-        <Headline style={styles.noteText}>Edit Note</Headline>
-        <TextInput
-          mode="outlined"
-          value={editedNote}
-          onChangeText={setEditedNote}
-          placeholder="Type note..."
-        />
+    <>
+      <Card style={styles.card}>
+        <Card.Title title="Task" />
+        <Card.Content>
+          <Headline style={styles.noteText}>Edit Note</Headline>
+          <TextInput
+            mode="outlined"
+            value={editedNote}
+            onChangeText={setEditedNote}
+            placeholder="Type note..."
+          />
 
-        <View style={styles.statusRow}>
-          <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
-          <Switch value={editedStatus} onValueChange={setEditedStatus} color="#6200ee" />
-        </View>
-      </Card.Content>
+          <View style={styles.statusRow}>
+            <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
+            <Switch value={editedStatus} onValueChange={setEditedStatus} color="#6200ee" />
+          </View>
+        </Card.Content>
 
-      <Card.Actions style={styles.actionsRow}>
-        <Button
-          mode="outlined"
-          onPress={handleDelete}
-          loading={deleting}
-          disabled={deleting}
-        >
-          Delete
-        </Button>
+        <Card.Actions style={styles.actionsRow}>
+          <Button
+            mode="outlined"
+            onPress={() => setDeleteConfirmVisible(true)}
+            loading={deleting}
+            disabled={deleting}
+          >
+            Delete
+          </Button>
 
-        <Button
-          mode="contained"
-          onPress={handleUpdate}
-          loading={saving}
-          disabled={saving}
-        >
-          Update
-        </Button>
-      </Card.Actions>
-    </Card>
+          <Button
+            mode="contained"
+            onPress={handleUpdate}
+            loading={saving}
+            disabled={saving}
+          >
+            Update
+          </Button>
+        </Card.Actions>
+      </Card>
+
+      <Modal
+        isOpen={deleteConfirmVisible}
+        onClose={() => {
+          if (!deleting) setDeleteConfirmVisible(false);
+        }}
+        size="sm"
+      >
+        <ModalBackdrop />
+        <ModalContent>
+          <ModalHeader>
+            <View style={styles.modalHeaderRow}>
+              <FAB
+                icon="delete"
+                customSize={40}
+                mode="flat"
+                color="#d4472a"
+                style={styles.modalFabIcon}
+              />
+              <Text variant="titleMedium" style={styles.modalTextWhite}>Delete Note</Text>
+            </View>
+          </ModalHeader>
+
+          <ModalBody>
+            <Text style={styles.modalTextWhite}>Are you sure you want to delete this note?</Text>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              mode="contained"
+              onPress={() => setDeleteConfirmVisible(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button style={{ backgroundColor: "#d4472a" }}
+              mode="contained"
+              onPress={handleDelete}
+              loading={deleting}
+              disabled={deleting}
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 
@@ -105,6 +160,27 @@ const styles = StyleSheet.create({
   actionsRow: {
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  modalHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  modalTextWhite: {
+    color: "white",
+  },
+  modalFabIcon: {
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: "transparent",
+    width: 18,
+    height: 18,
+    minWidth: 18,
+    margin: 0,
+    padding: 0,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
