@@ -14,15 +14,20 @@ export default function NoteScreen() {
   const [newStatus, setNewStatus] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showNoteAdded, setShowNoteAdded] = useState(false);
+  const [showNoteUpdated, setShowNoteUpdated] = useState(false);
 
   const NoteAddedFabIcon = () => (
     <FAB icon="check-circle" customSize={40} mode="flat" style={styles.alertFabIcon} />
+    );
+  const NoteUpdatedFabIcon = () => (
+    <FAB icon="check-all" customSize={40} mode="flat" style={styles.alertFabIcon} />
     );
 
   useEffect(() => {
     getNotes().then((data) => setNotes(data));
   }, []);
 
+  //new note effect wow
   useEffect(() => {
     if (!showNoteAdded) return;
 
@@ -33,8 +38,20 @@ export default function NoteScreen() {
     return () => clearTimeout(timer);
   }, [showNoteAdded]);
 
+  // Edit note effect wow
+  useEffect(() => {
+    if (!showNoteUpdated) return;
+
+    const timer = setTimeout(() => {
+      setShowNoteUpdated(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [showNoteUpdated]);
+
   const handleUpdated = (updated: Note) => {
     setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
+    setShowNoteUpdated(true);
   };
 
   const handleDeleted = (id: number) => {
@@ -86,6 +103,14 @@ export default function NoteScreen() {
     );
   }
 
+  function noteUpdated() {
+    return (
+      <Alert action="info" variant="solid">
+        <AlertIcon as={NoteUpdatedFabIcon} />
+        <AlertText>Note Updated!</AlertText>
+      </Alert>
+    );
+  }
   return (
     <SafeAreaView style={styles.container}>
       <Searchbar
@@ -95,6 +120,9 @@ export default function NoteScreen() {
         style={styles.search}
       />
 
+      <Portal>
+        {showNoteUpdated && <View style={styles.alertHeaderRight}>{noteUpdated()}</View>}
+      </Portal>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {filteredNotes.map((note) => (
           <View key={note.id}>
