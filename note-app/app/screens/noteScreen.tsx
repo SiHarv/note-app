@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, ScrollView, SafeAreaView, View, Platform, StatusBar } from "react-native";
-import { Searchbar, FAB, Portal, Modal, TextInput, Button, Switch, Text } from "react-native-paper";
+import { Searchbar, FAB, Portal, TextInput, Button, Switch, Text } from "react-native-paper";
 import { getNotes, createNote, Note } from "../api/noteAPI";
 import NotePost from "../components/notePost";
 import { Alert, AlertText, AlertIcon } from '@/components/ui/alert';
+import { Modal, ModalBackdrop, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@/components/ui/modal";
 
 export default function NoteScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -167,43 +168,71 @@ export default function NoteScreen() {
 
       <Portal>
         {showNoteAdded && <View style={styles.alertHeaderRight}>{noteAdded()}</View>}
+      </Portal>
 
-        <Modal
-          visible={createVisible}
-          onDismiss={closeCreateModal}
-          contentContainerStyle={styles.modal}
-        >
-          <Text style={styles.modalTitle}>Create Note</Text>
+      <Modal
+        isOpen={createVisible}
+        onClose={closeCreateModal}
+        size="sm"
+      >
+        <ModalBackdrop />
+        <ModalContent className="bg-black border-outline-200">
+          <ModalHeader>
+            <View style={styles.modalHeaderRow}>
+              <FAB
+                icon="plus-circle"
+                customSize={40}
+                mode="flat"
+                color="#41a60f"
+                style={styles.modalFabIcon}
+              />
+              <Text style={styles.modalTitle}>Create Note</Text>
+            </View>
+          </ModalHeader>
 
-          <TextInput
-            mode="outlined"
-            label="Note"
-            placeholder="Type note..."
-            value={newNote}
-            onChangeText={setNewNote}
-            style={styles.modalInput}
-          />
+          <ModalBody>
+            <TextInput
+              mode="outlined"
+              label="Note"
+              placeholder="Type note..."
+              value={newNote}
+              onChangeText={setNewNote}
+              style={styles.modalInput}
+              textColor="#ffffff"
+              placeholderTextColor="#cfcfcf"
+              theme={{
+                colors: {
+                  primary: "#7ce647",
+                  onSurfaceVariant: "#cfcfcf",
+                  outline: "#666666",
+                  background: "#111111",
+                },
+              }}
+            />
 
-          <View style={styles.modalStatusRow}>
-            <Text>{newStatus ? "Done" : "Unfinished"}</Text>
-            <Switch value={newStatus} onValueChange={setNewStatus} />
-          </View>
+            <View style={styles.modalStatusRow}>
+              <Text style={styles.modalStatusText}>{newStatus ? "Done" : "Unfinished"}</Text>
+              <Switch value={newStatus} onValueChange={setNewStatus} />
+            </View>
+          </ModalBody>
 
-          <View style={styles.modalActions}>
-            <Button onPress={closeCreateModal} disabled={creating}>
+          <ModalFooter>
+            <Button mode="contained" onPress={closeCreateModal} disabled={creating} labelStyle={styles.modalButtonLabel}>
               Cancel
             </Button>
             <Button
+              style={styles.createButton}
               mode="contained"
               onPress={handleCreate}
               loading={creating}
               disabled={creating || !newNote.trim()}
+              labelStyle={styles.modalButtonLabel}
             >
               Create
             </Button>
-          </View>
-        </Modal>
-      </Portal>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <FAB icon="plus" style={styles.fab} onPress={openCreateModal} />
     </SafeAreaView>
@@ -248,29 +277,45 @@ const styles = StyleSheet.create({
     right: 24,
     bottom: 24,
   },
-  modal: {
-    margin: 24,
-    borderRadius: 12,
-    padding: 16,
-    backgroundColor: "#eeeeee",
-  },
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    marginBottom: 12,
+    color: "white",
   },
   modalInput: {
-    marginBottom: 12,
+    marginBottom: 16,
+    backgroundColor: "#111111",
   },
   modalStatusRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
   },
-  modalActions: {
+  modalStatusText: {
+    color: "white",
+  },
+  modalButtonLabel: {
+    color: "white",
+  },
+  createButton: {
+    backgroundColor: "#41a60f",
+  },
+  modalFabIcon: {
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: "transparent",
+    width: 18,
+    height: 18,
+    minWidth: 18,
+    margin: 0,
+    padding: 0,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalHeaderRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    alignItems: "center",
     gap: 8,
   },
 });
