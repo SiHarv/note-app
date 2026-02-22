@@ -1,4 +1,4 @@
-const API_URL = "http://192.168.100.76:3000/api/v1/";
+const API_URL = "http://192.168.100.101:3000/api/v1/";
 
 export interface Note {
   id: number;

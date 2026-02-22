@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { StyleSheet, ScrollView, SafeAreaView, View } from "react-native";
+import { StyleSheet, ScrollView, SafeAreaView, View, Platform, StatusBar } from "react-native";
 import { Searchbar, FAB, Portal, Modal, TextInput, Button, Switch, Text } from "react-native-paper";
 import { getNotes, createNote, Note } from "../api/noteAPI";
 import NotePost from "../components/notePost";
+import { Alert, AlertText, AlertIcon } from '@/components/ui/alert';
 
 export default function NoteScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -12,10 +13,25 @@ export default function NoteScreen() {
   const [newNote, setNewNote] = useState("");
   const [newStatus, setNewStatus] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [showNoteAdded, setShowNoteAdded] = useState(false);
+
+  const NoteAddedFabIcon = () => (
+    <FAB icon="check-circle" customSize={40} mode="flat" style={styles.alertFabIcon} />
+    );
 
   useEffect(() => {
     getNotes().then((data) => setNotes(data));
   }, []);
+
+  useEffect(() => {
+    if (!showNoteAdded) return;
+
+    const timer = setTimeout(() => {
+      setShowNoteAdded(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [showNoteAdded]);
 
   const handleUpdated = (updated: Note) => {
     setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
@@ -53,12 +69,22 @@ export default function NoteScreen() {
       setCreateVisible(false);
       setNewNote("");
       setNewStatus(false);
+      setShowNoteAdded(true);
     } catch (e) {
       console.log("Create failed", e);
     } finally {
       setCreating(false);
     }
   };
+
+  function noteAdded() {
+    return (
+      <Alert action="success" variant="solid">
+        <AlertIcon as={NoteAddedFabIcon} />
+        <AlertText>Note Added!</AlertText>
+      </Alert>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -84,6 +110,8 @@ export default function NoteScreen() {
       </ScrollView>
 
       <Portal>
+        {showNoteAdded && <View style={styles.alertHeaderRight}>{noteAdded()}</View>}
+
         <Modal
           visible={createVisible}
           onDismiss={closeCreateModal}
@@ -128,6 +156,28 @@ export default function NoteScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  alertHeaderRight: {
+    position: "absolute",
+    top: Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) + 8 : 8,
+    right: 12,
+    zIndex: 999,
+    elevation: 10,
+    width: 220,
+    maxWidth: "70%",
+  },
+  alertFabIcon: {
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: "transparent",
+    width: 18,
+    height: 18,
+    minWidth: 18,
+    margin: 0,
+    padding: 0,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   search: {
     marginHorizontal: 24,
     marginTop: 12,
