@@ -15,12 +15,17 @@ export default function NoteScreen() {
   const [creating, setCreating] = useState(false);
   const [showNoteAdded, setShowNoteAdded] = useState(false);
   const [showNoteUpdated, setShowNoteUpdated] = useState(false);
+  const [showNoteDeleted, setShowNoteDeleted] = useState(false);
 
   const NoteAddedFabIcon = () => (
     <FAB icon="check-circle" customSize={40} mode="flat" style={styles.alertFabIcon} />
     );
   const NoteUpdatedFabIcon = () => (
     <FAB icon="check-all" customSize={40} mode="flat" style={styles.alertFabIcon} />
+    );
+  
+  const NoteDeletedFabIcon = () => (
+    <FAB icon="delete-circle" customSize={40} mode="flat" style={styles.alertFabIcon} />
     );
 
   useEffect(() => {
@@ -49,6 +54,17 @@ export default function NoteScreen() {
     return () => clearTimeout(timer);
   }, [showNoteUpdated]);
 
+  // Delete note effect wow
+  useEffect(() => {
+    if (!showNoteDeleted) return;
+
+    const timer = setTimeout(() => {
+      setShowNoteDeleted(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [showNoteDeleted]);
+
   const handleUpdated = (updated: Note) => {
     setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
     setShowNoteUpdated(true);
@@ -56,6 +72,7 @@ export default function NoteScreen() {
 
   const handleDeleted = (id: number) => {
     setNotes((prev) => prev.filter((n) => n.id !== id));
+    setShowNoteDeleted(true);
   };
 
   const filteredNotes = useMemo(() => {
@@ -111,6 +128,16 @@ export default function NoteScreen() {
       </Alert>
     );
   }
+
+  function noteDeleted() {
+    return (
+      <Alert action="error" variant="solid">
+        <AlertIcon as={NoteDeletedFabIcon} />
+        <AlertText>Note Deleted!</AlertText>
+      </Alert>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Searchbar
@@ -122,6 +149,7 @@ export default function NoteScreen() {
 
       <Portal>
         {showNoteUpdated && <View style={styles.alertHeaderRight}>{noteUpdated()}</View>}
+        {showNoteDeleted && <View style={styles.alertHeaderRight}>{noteDeleted()}</View>}
       </Portal>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {filteredNotes.map((note) => (
