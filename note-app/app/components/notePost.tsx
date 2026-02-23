@@ -21,7 +21,6 @@ function NotePost(props: NotePostProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
-  const [showActions, setShowActions] = useState(false);
   const isActive = props.activeNoteId === props.id;
 
   const DeleteFabIcon = () => (
