@@ -69,6 +69,7 @@ function NotePost(props: NotePostProps) {
             value={editedNote}
             onChangeText={setEditedNote}
             placeholder="Type note..."
+            editable={isActive}
           />
 
           <View style={styles.statusRow}>
