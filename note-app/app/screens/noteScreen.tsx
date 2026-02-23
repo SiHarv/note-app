@@ -5,6 +5,7 @@ import { getNotes, createNote, Note } from "../api/noteAPI";
 import NotePost from "../components/notePost";
 import { Alert, AlertText, AlertIcon } from '@/components/ui/alert';
 import { Modal, ModalBackdrop, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@/components/ui/modal";
+import { Pressable } from "react-native";
 
 export default function NoteScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -17,6 +18,8 @@ export default function NoteScreen() {
   const [showNoteAdded, setShowNoteAdded] = useState(false);
   const [showNoteUpdated, setShowNoteUpdated] = useState(false);
   const [showNoteDeleted, setShowNoteDeleted] = useState(false);
+  const [activeNoteId, setActiveNoteId] = useState<number | null>(null);
+  
 
   const NoteAddedFabIcon = () => (
     <FAB icon="check-circle" customSize={40} mode="flat" style={styles.alertFabIcon} />
@@ -140,102 +143,112 @@ export default function NoteScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Searchbar
-        placeholder="Search note..."
-        value={query}
-        onChangeText={setQuery}
-        style={styles.search}
-      />
+    <Pressable style={{flex: 1}} onPress={() => setActiveNoteId(null)}>
+      <SafeAreaView style={styles.container}>
+        <Searchbar
+          placeholder="Search note..."
+          value={query}
+          onChangeText={setQuery}
+          style={styles.search}
+        />
 
-      <Portal>
-        {showNoteUpdated && <View style={styles.alertHeaderRight}>{noteUpdated()}</View>}
-        {showNoteDeleted && <View style={styles.alertHeaderRight}>{noteDeleted()}</View>}
-      </Portal>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {filteredNotes.map((note) => (
-          <View key={note.id}>
-            <NotePost
-              id={note.id}
-              note={note.note}
-              status={note.status}
-              onUpdated={handleUpdated}
-              onDeleted={handleDeleted}
-            />
-          </View>
-        ))}
-      </ScrollView>
-
-      <Portal>
-        {showNoteAdded && <View style={styles.alertHeaderRight}>{noteAdded()}</View>}
-      </Portal>
-
-      <Modal
-        isOpen={createVisible}
-        onClose={closeCreateModal}
-        size="sm"
-      >
-        <ModalBackdrop />
-        <ModalContent className="bg-black border-outline-200">
-          <ModalHeader>
-            <View style={styles.modalHeaderRow}>
-              <FAB
-                icon="plus-circle"
-                customSize={40}
-                mode="flat"
-                color="#41a60f"
-                style={styles.modalFabIcon}
+        <Portal>
+          {showNoteUpdated && <View style={styles.alertHeaderRight}>{noteUpdated()}</View>}
+          {showNoteDeleted && <View style={styles.alertHeaderRight}>{noteDeleted()}</View>}
+        </Portal>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {filteredNotes.map((note) => (
+            <View key={note.id}>
+              <NotePost
+                id={note.id}
+                note={note.note}
+                status={note.status}
+                activeNoteId={activeNoteId}
+                setActiveNoteId={setActiveNoteId}
+                onUpdated={(updated) => {
+                  handleUpdated(updated);
+                  setActiveNoteId(null);
+                }}
+                onDeleted={(id) => {
+                  handleDeleted(id);
+                  setActiveNoteId(null);
+                }}
               />
-              <Text style={styles.modalTitle}>Create Note</Text>
             </View>
-          </ModalHeader>
+          ))}
+        </ScrollView>
 
-          <ModalBody>
-            <TextInput
-              mode="outlined"
-              label="Note"
-              placeholder="Type note..."
-              value={newNote}
-              onChangeText={setNewNote}
-              style={styles.modalInput}
-              textColor="#ffffff"
-              placeholderTextColor="#cfcfcf"
-              theme={{
-                colors: {
-                  primary: "#7ce647",
-                  onSurfaceVariant: "#cfcfcf",
-                  outline: "#666666",
-                  background: "#111111",
-                },
-              }}
-            />
+        <Portal>
+          {showNoteAdded && <View style={styles.alertHeaderRight}>{noteAdded()}</View>}
+        </Portal>
 
-            <View style={styles.modalStatusRow}>
-              <Text style={styles.modalStatusText}>{newStatus ? "Done" : "Unfinished"}</Text>
-              <Switch value={newStatus} onValueChange={setNewStatus} />
-            </View>
-          </ModalBody>
+        <Modal
+          isOpen={createVisible}
+          onClose={closeCreateModal}
+          size="sm"
+        >
+          <ModalBackdrop />
+          <ModalContent className="bg-black border-outline-200">
+            <ModalHeader>
+              <View style={styles.modalHeaderRow}>
+                <FAB
+                  icon="plus-circle"
+                  customSize={40}
+                  mode="flat"
+                  color="#41a60f"
+                  style={styles.modalFabIcon}
+                />
+                <Text style={styles.modalTitle}>Create Note</Text>
+              </View>
+            </ModalHeader>
 
-          <ModalFooter>
-            <Button mode="contained" onPress={closeCreateModal} disabled={creating} labelStyle={styles.modalButtonLabel}>
-              Cancel
-            </Button>
-            <Button
-              style={styles.createButton}
-              mode="contained"
-              onPress={handleCreate}
-              loading={creating}
-              disabled={creating || !newNote.trim()}
-              labelStyle={styles.modalButtonLabel}
-            >
-              Create
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            <ModalBody>
+              <TextInput
+                mode="outlined"
+                label="Note"
+                placeholder="Type note..."
+                value={newNote}
+                onChangeText={setNewNote}
+                style={styles.modalInput}
+                textColor="#ffffff"
+                placeholderTextColor="#cfcfcf"
+                theme={{
+                  colors: {
+                    primary: "#7ce647",
+                    onSurfaceVariant: "#cfcfcf",
+                    outline: "#666666",
+                    background: "#111111",
+                  },
+                }}
+              />
 
-      <FAB icon="plus" style={styles.fab} onPress={openCreateModal} />
-    </SafeAreaView>
+              <View style={styles.modalStatusRow}>
+                <Text style={styles.modalStatusText}>{newStatus ? "Done" : "Unfinished"}</Text>
+                <Switch value={newStatus} onValueChange={setNewStatus} />
+              </View>
+            </ModalBody>
+
+            <ModalFooter>
+              <Button mode="contained" onPress={closeCreateModal} disabled={creating} labelStyle={styles.modalButtonLabel}>
+                Cancel
+              </Button>
+              <Button
+                style={styles.createButton}
+                mode="contained"
+                onPress={handleCreate}
+                loading={creating}
+                disabled={creating || !newNote.trim()}
+                labelStyle={styles.modalButtonLabel}
+              >
+                Create
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        <FAB icon="plus" style={styles.fab} onPress={openCreateModal} />
+      </SafeAreaView>
+    </Pressable>
   );
 }
 

@@ -3,11 +3,14 @@ import { StyleSheet, View } from "react-native";
 import { Button, Card, FAB, Headline, Switch, Text, TextInput } from "react-native-paper";
 import { updateNote, deleteNote, Note } from "../api/noteAPI";
 import { Modal, ModalBackdrop, ModalContent, ModalHeader, ModalBody, ModalFooter, } from "@/components/ui/modal";
+import { Pressable } from "react-native";
 
 interface NotePostProps {
   id: number;
   note: string;
   status: boolean;
+  activeNoteId: number | null;
+  setActiveNoteId: (id: number | null) => void;
   onUpdated: (updated: Note) => void;
   onDeleted: (id: number) => void;
 }
@@ -18,6 +21,8 @@ function NotePost(props: NotePostProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+  const isActive = props.activeNoteId === props.id;
 
   const DeleteFabIcon = () => (
     <FAB icon="delete" customSize={40} mode="flat" style={styles.modalFabIcon} />
@@ -53,10 +58,12 @@ function NotePost(props: NotePostProps) {
 
   return (
     <>
+      <Pressable
+      onLongPress={() => props.setActiveNoteId(props.id)}
+      >
       <Card style={styles.card}>
         <Card.Title title="Task" />
         <Card.Content>
-          <Headline style={styles.noteText}>Edit Note</Headline>
           <TextInput
             mode="outlined"
             value={editedNote}
@@ -70,26 +77,29 @@ function NotePost(props: NotePostProps) {
           </View>
         </Card.Content>
 
-        <Card.Actions style={styles.actionsRow}>
-          <Button
-            mode="outlined"
-            onPress={() => setDeleteConfirmVisible(true)}
-            loading={deleting}
-            disabled={deleting}
-          >
-            Delete
-          </Button>
+        {isActive && (
+          <Card.Actions style={styles.actionsRow}>
+            <Button
+              mode="outlined"
+              onPress={() => setDeleteConfirmVisible(true)}
+              loading={deleting}
+              disabled={deleting}
+            >
+              Delete
+            </Button>
 
-          <Button
-            mode="contained"
-            onPress={handleUpdate}
-            loading={saving}
-            disabled={saving}
-          >
-            Update
-          </Button>
-        </Card.Actions>
+            <Button
+              mode="contained"
+              onPress={handleUpdate}
+              loading={saving}
+              disabled={saving}
+            >
+              Update
+            </Button>
+          </Card.Actions>
+        )}
       </Card>
+      </Pressable>
 
       <Modal
         isOpen={deleteConfirmVisible}
