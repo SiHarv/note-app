@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Button, Card, FAB, Headline, Switch, Text, TextInput } from "react-native-paper";
+import { Button, Card, FAB, Headline, Text, TextInput } from "react-native-paper";
 import { updateNote, deleteNote, Note } from "../api/noteAPI";
 import { Modal, ModalBackdrop, ModalContent, ModalHeader, ModalBody, ModalFooter, } from "@/components/ui/modal";
 import { Pressable } from "react-native";
+import { Switch } from '@/components/ui/switch';
 
 interface NotePostProps {
   id: number;
@@ -71,9 +72,16 @@ function NotePost(props: NotePostProps) {
             editable={isActive}
           />
 
+          {/* Cards Switch */}
           <View style={styles.statusRow}>
             <Text>{editedStatus ? "Done" : "Unfinished"}</Text>
-            <Switch value={editedStatus} onValueChange={setEditedStatus} color="#6200ee" />
+            <Switch
+              isChecked={editedStatus}
+              onChange={(e) => setEditedStatus(e.nativeEvent.value)}
+              size="md"
+              thumbColor="#ffffff"
+              trackColor={{ false: '#EE008B', true: '#8BEE00' }}
+            />
           </View>
         </Card.Content>
 
@@ -164,8 +172,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     gap: 8,
+    
   },
   actionsRow: {
     justifyContent: "space-between",

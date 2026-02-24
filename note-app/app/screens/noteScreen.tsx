@@ -219,7 +219,7 @@ export default function NoteScreen() {
                   },
                 }}
               />
-
+              {/* Add Modal Switch */}
               <View style={styles.modalStatusRow}>
                 <Text style={styles.modalStatusText}>{newStatus ? "Done" : "Unfinished"}</Text>
                 <Switch value={newStatus} onValueChange={setNewStatus} />
@@ -259,8 +259,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
     elevation: 10,
     width: 220,
-    maxWidth: "70%",
-    marginTop: -25,
+    maxWidth: "70%"
   },
   alertFabIcon: {
     elevation: 0,
