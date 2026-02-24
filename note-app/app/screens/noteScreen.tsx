@@ -260,6 +260,7 @@ const styles = StyleSheet.create({
     elevation: 10,
     width: 220,
     maxWidth: "70%",
+    marginTop: -25,
   },
   alertFabIcon: {
     elevation: 0,
