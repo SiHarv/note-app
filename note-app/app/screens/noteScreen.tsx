@@ -148,6 +148,7 @@ export default function NoteScreen() {
         <Searchbar
           placeholder="Search note..."
           value={query}
+          
           onChangeText={setQuery}
           style={styles.search}
         />
@@ -155,6 +156,7 @@ export default function NoteScreen() {
         <Portal>
           {showNoteUpdated && <View style={styles.alertHeaderRight}>{noteUpdated()}</View>}
           {showNoteDeleted && <View style={styles.alertHeaderRight}>{noteDeleted()}</View>}
+          {showNoteAdded && <View style={styles.alertHeaderRight}>{noteAdded()}</View>}
         </Portal>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {filteredNotes.map((note) => (
@@ -177,10 +179,6 @@ export default function NoteScreen() {
             </View>
           ))}
         </ScrollView>
-
-        <Portal>
-          {showNoteAdded && <View style={styles.alertHeaderRight}>{noteAdded()}</View>}
-        </Portal>
 
         <Modal
           isOpen={createVisible}
