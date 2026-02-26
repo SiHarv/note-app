@@ -1,4 +1,11 @@
+import axios from "axios";
+
 const API_URL = "http://192.168.1.44:3000/api/v1/";
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: { "Content-Type": "application/json" },
+});
 
 export interface Note {
   id: number;
@@ -12,38 +19,28 @@ export interface NotePayload {
 }
 
 export async function getNotes(): Promise<Note[]> {
-  const response = await fetch(`${API_URL}notes`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-  return await response.json();
+  const response = await api.get("notes");
+  return response.data;
 }
 
 export async function createNote(payload: NotePayload): Promise<Note> {
-  const response = await fetch(`${API_URL}notes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ note: payload }),
+  const response = await api.post("notes", {
+    note: payload
   });
-  return await response.json();
+  return response.data;
 }
 
-export async function updateNote(id: number, payload: NotePayload): Promise<Note> {
-  const response = await fetch(`${API_URL}notes/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ note: payload }),
+export async function updateNote(
+  id: number,
+  payload: NotePayload
+): Promise<Note> {
+  const response = await api.put(`notes/${id}`, {
+    note: payload,
   });
-  return await response.json();
+  return response.data;
 }
+
 
 export async function deleteNote(id: number): Promise<void> {
-  const response = await fetch(`${API_URL}notes/${id}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Delete failed: ${response.status}`);
-  }
+  await api.delete(`notes/${id}`);
 }
