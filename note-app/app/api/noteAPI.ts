@@ -18,22 +18,22 @@ export interface NotePayload {
   status: boolean;
 }
 
-export async function getNotes(): Promise<Note[]> {
+export const getNotes = async (): Promise<Note[]> => {
   const response = await api.get("notes");
   return response.data;
 }
 
-export async function createNote(payload: NotePayload): Promise<Note> {
+export const createNote = async (payload: NotePayload): Promise<Note> => {
   const response = await api.post("notes", {
-    note: payload
+    note: payload,
   });
   return response.data;
 }
 
-export async function updateNote(
+export const updateNote = async (
   id: number,
   payload: NotePayload
-): Promise<Note> {
+): Promise<Note> => {
   const response = await api.put(`notes/${id}`, {
     note: payload,
   });
@@ -41,6 +41,6 @@ export async function updateNote(
 }
 
 
-export async function deleteNote(id: number): Promise<void> {
+export const  deleteNote = async (id: number): Promise<void> => {
   await api.delete(`notes/${id}`);
 }
